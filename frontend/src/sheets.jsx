@@ -12,6 +12,7 @@ import { beep, vibrate } from './lib/sound.js'
 import { t, tn, dateLocale, instrFor, instrTranslated, descFor, exerciseNameFor, exerciseNameClass, getLang, useLang } from './lib/i18n.js'
 import { nav, closeThenNav, navToWorkout } from './lib/nav.js'
 import { buildStarterPlan, starterPlanDays, starterPlanOptions } from './lib/starter.js'
+import PlanBuilderSheet from './components/PlanBuilderSheet.jsx'
 import Media, { Thumb } from './components/Media.jsx'
 import CustomMediaField from './components/CustomMediaField.jsx'
 import WorkoutMediaSection, { workoutMediaCount } from './components/WorkoutMedia.jsx'
@@ -181,27 +182,31 @@ const PLAN_COPY = {
   '5x5': () => ({ name: t('5×5'), about: t('Five sets of five on the main barbell lifts.') })
 }
 
+// Adds a plan's routines to a store draft and puts them on its weekdays. Loading the same plan
+// again reuses the routines it added last time (same name, same exercises) for the weekdays
+// instead of a second Upper A, Lower A, ... under the same names; a plan fitted or built for
+// other equipment has other exercises, so it is added alongside. Existing routines are never
+// touched and only the weekdays the plan asks for are reassigned. Shared by the starter plans
+// and the plan builder, so both load through one path.
+function addPlanRoutines(st, plan) {
+  const idOf = {}
+  const sameLift = (a, b) => a.ex.length === b.ex.length && a.ex.every((e, i) => e.id === b.ex[i].id)
+  plan.routines.forEach(r => {
+    const have = st.routines.find(x => x.name === r.name && sameLift(x, r))
+    if (have) idOf[r.id] = have.id
+    else { st.routines.push(r); idOf[r.id] = r.id }
+  })
+  plan.schedule.forEach(({ day, routineId }) => { st.week[day] = [idOf[routineId]] })
+}
+
 // Adds the plan's routines (reusing one you already have under the same name) and puts them on
-// its weekdays. Existing routines are never touched
-// and only the weekdays the plan asks for are reassigned; an id with no plan behind it changes
-// nothing at all. planId is deliberately required — a default invites `onClick={loadStarterPlan}`,
-// which hands the click event in as the plan and silently loads nothing.
+// its weekdays; an id with no plan behind it changes nothing at all. planId is deliberately
+// required — a default invites `onClick={loadStarterPlan}`, which hands the click event in as
+// the plan and silently loads nothing.
 export function loadStarterPlan(planId, profile) {
   const plan = buildStarterPlan(planId, profile ? profileEquipment(profile) : undefined)
   if (!plan) return false
-  update(st => {
-    // Loading the same plan again reuses the routines it added last time (same name, same
-    // exercises) for the weekdays instead of a second Upper A, Lower A, ... under the same names.
-    // A plan fitted to different equipment has other exercises, so it is added alongside.
-    const idOf = {}
-    const sameLift = (a, b) => a.ex.length === b.ex.length && a.ex.every((e, i) => e.id === b.ex[i].id)
-    plan.routines.forEach(r => {
-      const have = st.routines.find(x => x.name === r.name && sameLift(x, r))
-      if (have) idOf[r.id] = have.id
-      else { st.routines.push(r); idOf[r.id] = r.id }
-    })
-    plan.schedule.forEach(({ day, routineId }) => { st.week[day] = [idOf[routineId]] })
-  })
+  update(st => addPlanRoutines(st, plan))
   if (plan.fit) toast(t('{0} loaded, fitted to "{1}": {2} swapped, {3} dropped', PLAN_COPY[planId]().name, profile.name, plan.fit.swapped, plan.fit.dropped))
   else toast(t('{0} loaded', PLAN_COPY[planId]().name))
   return true
@@ -254,6 +259,42 @@ function StarterPlanChooser({ close }) {
 }
 
 export const starterPlanSheet = () => ui().openSheet(close => <StarterPlanChooser close={close} />)
+
+/* ============================ plan builder ============================ */
+// A plan generated from the equipment you tick (lib/plan-builder.js, components/PlanBuilderSheet.jsx).
+// The split names live here as literals for the same reason PLAN_COPY does.
+const SPLIT_COPY = {
+  'full-body': () => t('Full Body'),
+  'upper-lower': () => t('Upper / Lower'),
+  ppl: () => t('Push / Pull / Legs'),
+  'ppl-ul': () => t('Push / Pull / Legs + Upper / Lower')
+}
+
+// Writes a built plan into the store: its routines added, its weekdays set. False, and nothing
+// changed, for anything that is not a plan with routines in it.
+export function loadBuiltPlan(plan) {
+  if (!plan || !Array.isArray(plan.routines) || !plan.routines.length || !Array.isArray(plan.schedule)) return false
+  update(st => addPlanRoutines(st, plan))
+  toast(t('{0} routines added to your week', plan.routines.length))
+  return true
+}
+
+// Loads the previewed plan, asking first only when one of its weekdays already holds a routine
+// that still exists, the same rule the starter chooser follows.
+function loadBuiltPlanAsking(plan) {
+  const { week, routines } = S()
+  const days = plan.schedule.map(({ day }) => day)
+  const taken = day => [].concat(week[day] || []).some(id => routines.some(r => r.id === id))
+  if (!days.some(taken)) { loadBuiltPlan(plan); return }
+  confirmSheet({
+    title: t('Load {0}?', (SPLIT_COPY[plan.split] || SPLIT_COPY['full-body'])()),
+    message: t('The new plan goes on {0}. Your existing routines stay; only those days of the weekly plan change.', dayList(days)),
+    confirmText: t('Load plan'),
+    onConfirm: () => loadBuiltPlan(plan)
+  })
+}
+
+export const planBuilderSheet = () => ui().openSheet(close => <PlanBuilderSheet onLoad={plan => { close(); loadBuiltPlanAsking(plan) }} />)
 
 /* ============================ weight picker (shared: body weight + goal) ============================ */
 // Fixed range, not a moving window — a window that resizes itself mid-drag (the previous

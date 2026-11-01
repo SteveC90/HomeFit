@@ -88,6 +88,10 @@ machine, never in CI (see "Exercise media" below and docs/APP_STORES.md).
   - `exercises.js` / `exercises-data.js`: the exercise library (5,632 catalogue exercises plus
     user-defined ones). `exercises-data.js`, `instr/`, `exercise-names/` and `exercise-desc/` are
     generated from `catalogue/` by `scripts/catalogue/build.mjs`; never edit them by hand.
+  - `plan-builder.js`: the equipment-based plan builder (HomeFit's addition): a split per day
+    count, movement-pattern slots, ordered preference lists of catalogue ids per pattern, filled
+    with what `equipment.js` allows. Design note in docs/dev/PLAN_BUILDER.md. The sheet is
+    `components/PlanBuilderSheet.jsx`; `sheets.jsx` loads the result like a starter plan.
   - `api.js`: the only place that talks to the backend (`fetch` wrapper, session flows).
   - Native bridges: `mobile.js` (the `MOBILE` flag, file persistence, notifications),
     `channel.js` (APK or store build), `watch-sync.js`, `widgets.js`, `health-sync.js`,

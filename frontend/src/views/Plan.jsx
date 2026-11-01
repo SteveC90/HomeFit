@@ -5,7 +5,7 @@ import { useUI } from '../store/useUI.js'
 import { DAYN, DAYS, weekOrder, weekStartOf, uid, exCount, routineCount, todayISO, fmtDate } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import {
-  dayAssignSheet, starterPlanSheet, confirmSheet, menuSheet,
+  dayAssignSheet, starterPlanSheet, planBuilderSheet, confirmSheet, menuSheet,
   planHasRoutines, exportPlanFile, printWholePlan, importPlanFile,
 } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
@@ -159,6 +159,7 @@ export default function Plan() {
         { icon: 'share', label: t('Export plan file'), sub: t('A small file a friend can import into their own openGym. Routines only, none of your workouts or weigh-ins.'), disabled: !has, onClick: exportPlanFile },
         { icon: 'note', label: t('Print / Save as PDF'), disabled: !has, onClick: printWholePlan },
         { icon: 'download', label: t('Import a plan file'), onClick: () => fileRef.current?.click() },
+        { icon: 'figureStrength', label: t('Build my plan'), sub: t('A plan from the equipment you have.'), onClick: planBuilderSheet },
         { icon: 'clipboard', label: t('Load starter plan'), onClick: starterPlanSheet },
       ],
     })
@@ -311,7 +312,8 @@ function Schedule({ S, update, nav, mode }) {
 
     {!S.routines.length && <div className="empty plan-empty">
       <div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}
-      <div style={{ marginTop: 12 }}><Button icon="clipboard" onClick={starterPlanSheet}>{t('Load starter plan')}</Button></div>
+      <div style={{ marginTop: 12 }}><Button variant="primary" icon="figureStrength" onClick={planBuilderSheet}>{t('Build my plan')}</Button></div>
+      <div style={{ marginTop: 8 }}><Button icon="clipboard" onClick={starterPlanSheet}>{t('Load starter plan')}</Button></div>
     </div>}
 
     {/* A queue payload that arrived unusable: a fix-up, shown whichever way you train. Giving it
@@ -481,6 +483,8 @@ function Routines({ S, update, nav }) {
       <p className="sect-f">{edit ? t('Drag to reorder. Tap the minus to delete.') : t('Tap a routine to edit it. Reorder and delete are behind Edit.')}</p>
     </> : <>
       <div className="empty"><div className="ico"><Icon name="clipboard" /></div>{t('No routines yet.')}<br />{t('Make one, or grab the starter plan to get going.')}</div>
+      <Button variant="primary" icon="figureStrength" onClick={planBuilderSheet}>{t('Build my plan')}</Button>
+      <div style={{ height: 8 }} />
       <Button icon="clipboard" onClick={starterPlanSheet}>{t('Load starter plan')}</Button>
     </>}
   </>

@@ -26,7 +26,7 @@ vi.mock('../store/useStore.js', () => {
 })
 vi.mock('react-router-dom', () => ({ useNavigate: () => mocks.nav }))
 vi.mock('../sheets.jsx', () => ({
-  dayAssignSheet: vi.fn(), starterPlanSheet: vi.fn(), menuSheet: vi.fn(), confirmSheet: vi.fn(),
+  dayAssignSheet: vi.fn(), starterPlanSheet: vi.fn(), planBuilderSheet: vi.fn(), menuSheet: vi.fn(), confirmSheet: vi.fn(),
   planHasRoutines: () => true, exportPlanFile: vi.fn(), printWholePlan: vi.fn(), importPlanFile: vi.fn(),
 }))
 vi.mock('../lib/mobile.js', () => ({ MOBILE: false }))
@@ -353,11 +353,11 @@ describe('Plan — Schedule extras', () => {
     expect(host.querySelector('.plan-mode')).toBeTruthy()
   })
 
-  it('one Plan menu holds share, print, import and the starter plans', () => {
+  it('one Plan menu holds share, print, import, the plan builder and the starter plans', () => {
     mount()
     click(byLabel('Plan options'))
     const items = menuSheet.mock.calls.at(-1)[0].items.filter(Boolean)
-    expect(items.map(i => i.label)).toEqual(['Export plan file', 'Print / Save as PDF', 'Import a plan file', 'Load starter plan'])
+    expect(items.map(i => i.label)).toEqual(['Export plan file', 'Print / Save as PDF', 'Import a plan file', 'Build my plan', 'Load starter plan'])
   })
 })
 

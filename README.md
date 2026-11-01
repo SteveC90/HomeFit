@@ -29,6 +29,14 @@
 
 </div>
 
+## About this fork
+
+HomeFit is a personal fork of [openGym](https://github.com/DuarteSantos8/openGym). Everything
+below still applies; what it adds is **Build my plan** on the Plan page: tick the equipment you
+have (or start from one of your equipment profiles), pick how many days you train, a goal and a
+session length, and get a full weekly plan built from the exercise catalogue to fit exactly that
+kit. Offline, no AI, no account. Design note in [docs/dev/PLAN_BUILDER.md](docs/dev/PLAN_BUILDER.md).
+
 ## Why openGym
 
 Most workout apps keep your data on their servers, push you towards a subscription, or vanish

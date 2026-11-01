@@ -1670,6 +1670,27 @@ export const PT_BR_OVERRIDES = {
   'App icon': 'Ícone do app',
   'Just for this phone. Some home screens take a moment to catch up.': 'Só para este celular. Algumas telas iniciais demoram um pouco para perceber.',
   'Try the Halloween app icon': 'Experimente o ícone de Halloween do app',
+
+  // --- plan builder (HomeFit) ---
+  'A plan from the equipment you have.': 'Um plano com o equipamento que você tem.',
+  'Build a plan from your equipment': 'Montar um plano com o seu equipamento',
+  'Tick what you train with. Nothing ticked means body weight only.': 'Marque com o que você treina. Sem nada marcado, só peso do corpo.',
+  'Start from a profile': 'Partir de um perfil',
+  'Exercises per session': 'Exercícios por sessão',
+  'Squat': 'Agachamento',
+  'Hinge': 'Dobradiça de quadril',
+  'Lunge': 'Afundo',
+  'Horizontal push': 'Empurrar horizontal',
+  'Vertical push': 'Empurrar vertical',
+  'Horizontal pull': 'Puxar horizontal',
+  'Vertical pull': 'Puxar vertical',
+  'Leg curl': 'Flexão de pernas',
+  'Side delts': 'Deltoide lateral',
+  'Rear delts': 'Deltoide posterior',
+  '{0}: nothing fits this equipment, so {1} gets {2} instead.': '{0}: nada serve com este equipamento, então {1} recebe {2} no lugar.',
+  '{0}: nothing fits this equipment, so {1} skips it.': '{0}: nada serve com este equipamento, então {1} pula essa parte.',
+  'Push / Pull / Legs + Upper / Lower': 'Push / Pull / Legs + Superior / Inferior',
+  '{0} routines added to your week': '{0} rotinas adicionadas à sua semana',
 }
 
 export default { ...pt, ...PT_BR_OVERRIDES }
